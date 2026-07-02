@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Council — 18 Expert Minds on Your Hardest Question</title>
+    <meta name="description" content="Free AI council of 18 expert personas. Ask your hardest question and get diverse perspectives from Feynman, a startup founder, a philosopher, a skeptic, and more.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0b;
+            --surface: #141416;
+            --surface-2: #1c1c20;
+            --border: #2a2a30;
+            --text: #e8e8ed;
+            --text-muted: #8888a0;
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        .noise { position: fixed; top:0; left:0; right:0; bottom:0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; position: relative; z-index: 1; }
+        .header { text-align: center; margin-bottom: 3rem; padding-top: 2rem; }
+        .logo { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+        h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; line-height: 1.1; margin-bottom: 0.75rem; background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { font-size: 1.1rem; color: var(--text-muted); max-width: 550px; margin: 0 auto; line-height: 1.5; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem; }
+        label { display: block; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.75rem; }
+        textarea { width: 100%; min-height: 120px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.95rem; line-height: 1.6; resize: vertical; }
+        textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+        textarea::placeholder { color: #555; }
+        .btn { display: block; width: 100%; padding: 1rem; background: var(--accent); color: #fff; border: none; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 1rem; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .api-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .api-toggle { font-size: 0.8rem; color: var(--text-muted); cursor: pointer; }
+        .api-toggle:hover { color: var(--text); }
+        .api-fields { display: none; margin-top: 0.75rem; }
+        .api-fields.visible { display: block; }
+        .api-key-input { width: 100%; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+        .api-key-input:focus { outline: none; border-color: var(--accent); }
+        .api-note { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; }
+        select.provider-select { width: 100%; margin-bottom: 0.5rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem; color: var(--text); font-family: Inter, sans-serif; font-size: 0.85rem; }
+
+        .council-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+        .council-member { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; transition: border-color 0.3s; }
+        .council-member.active { border-color: var(--accent); }
+        .member-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+        .member-avatar { font-size: 1.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--surface-2); border-radius: 10px; }
+        .member-name { font-weight: 700; font-size: 0.9rem; }
+        .member-role { font-size: 0.75rem; color: var(--text-muted); }
+        .member-response { font-size: 0.88rem; line-height: 1.6; color: var(--text); }
+        .member-response.loading { color: var(--text-muted); font-style: italic; }
+
+        .verdict { background: var(--surface); border: 2px solid var(--accent); border-radius: 16px; padding: 1.5rem; margin-top: 1.5rem; display: none; }
+        .verdict.visible { display: block; }
+        .verdict h3 { color: var(--accent); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem; }
+        .verdict-text { font-size: 1rem; line-height: 1.7; }
+
+        .ad-slot { background: var(--surface-2); border: 1px dashed var(--border); border-radius: 8px; padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.75rem; margin: 1.5rem 0; }
+
+        .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+        .tool-link { display: block; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; text-decoration: none; color: var(--text); font-size: 0.85rem; transition: border-color 0.2s; }
+        .tool-link:hover { border-color: var(--accent); }
+        .tool-link span { color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 0.25rem; }
+
+        .footer { text-align: center; padding: 3rem 0 2rem; font-size: 0.8rem; color: var(--text-muted); }
+        .footer a { color: var(--accent); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="noise"></div>
+    <div class="container">
+        <header class="header">
+            <div class="logo">🏛️ AI Council</div>
+            <h1>18 Expert Minds.<br>Your Hardest Question.</h1>
+            <p class="subtitle">Ask anything. Get perspectives from a physicist, a startup founder, a philosopher, a skeptic, a therapist, and 13 more expert personas — all deliberating your question.</p>
+        </header>
+
+        <div class="card">
+            <label for="questionInput">Your Question</label>
+            <textarea id="questionInput" placeholder="Ask your hardest question...&#10;&#10;Examples:&#10;• Should I quit my job to start a company?&#10;• Is consciousness an illusion?&#10;• How should I invest $50k right now?"></textarea>
+
+            <section class="api-section">
+                <div class="api-toggle" onclick="document.getElementById('apiFields').classList.toggle('visible')">
+                    🔑 Use your own API key (required) ▾
+                </div>
+                <div class="api-fields" id="apiFields">
+                    <select class="provider-select" id="providerSelect">
+                        <option value="anthropic">Anthropic (Claude)</option>
+                        <option value="openai">OpenAI (GPT-4)</option>
+                    </select>
+                    <input type="password" class="api-key-input" id="apiKeyInput" placeholder="sk-... or your API key">
+                    <p class="api-note">Your key stays in your browser. Never sent anywhere except the AI provider directly.</p>
+                </div>
+            </section>
+
+            <button class="btn" onclick="conveneCouncil()">🏛️ Convene the Council</button>
+        </div>
+
+        <div class="ad-slot">Ad Space — Coming Soon</div>
+
+        <div id="councilContainer"></div>
+
+        <div class="verdict" id="verdict">
+            <h3>🏛️ Council Synthesis</h3>
+            <div class="verdict-text" id="verdictText"></div>
+        </div>
+
+        <div class="ad-slot">Ad Space — Coming Soon</div>
+
+        <div class="card" style="margin-top: 2rem;">
+            <label>More Free AI Tools</label>
+            <div class="tools-grid">
+                <a href="https://michael-ami-01.github.io/coldscore/" class="tool-link">📧 ColdScore<span>Grade your cold emails</span></a>
+                <a href="https://michael-ami-01.github.io/promptforge/" class="tool-link">⚡ PromptForge<span>Optimize any AI prompt</span></a>
+                <a href="#" class="tool-link">📄 ResumeAI Score<span>Coming soon</span></a>
+            </div>
+        </div>
+
+        <footer class="footer">Built by <a href="https://github.com/mzio" target="_blank">Michael Zhang</a> · Free forever · No signup required</footer>
+    </div>
+
+    <script>
+    const COUNCIL = [
+        { emoji: "🧪", name: "The Physicist", role: "Thinks in first principles", prompt: "You are Richard Feynman. Think from first principles. Cut through jargon. Use analogies." },
+        { emoji: "🚀", name: "The Startup Founder", role: "Bias toward action", prompt: "You are a Y Combinator-backed startup founder. Focus on speed, MVPs, and market validation. Be blunt." },
+        { emoji: "🤔", name: "The Philosopher", role: "Questions assumptions", prompt: "You are a Socratic philosopher. Question every assumption. Explore what the question really means." },
+        { emoji: "🔍", name: "The Skeptic", role: "Finds the flaws", prompt: "You are a professional skeptic and devil's advocate. Find every flaw, risk, and hidden assumption." },
+        { emoji: "💰", name: "The Investor", role: "Follows the money", prompt: "You are Warren Buffett. Think about incentives, moats, and long-term value. Be patient and contrarian." },
+        { emoji: "🧠", name: "The Therapist", role: "Reads between the lines", prompt: "You are a wise therapist. Focus on the emotional subtext, what's not being said, and the person behind the question." },
+        { emoji: "⚔️", name: "The Strategist", role: "Plays the long game", prompt: "You are Sun Tzu meets a chess grandmaster. Think about positioning, timing, and second-order effects." },
+        { emoji: "📊", name: "The Data Scientist", role: "Wants the numbers", prompt: "You are a rigorous data scientist. Ask what data would resolve this. Point out where intuition might mislead." },
+        { emoji: "🎨", name: "The Creative", role: "Thinks laterally", prompt: "You are a wildly creative thinker. Propose unexpected solutions. Connect unrelated domains. Think obliquely." },
+        { emoji: "⚖️", name: "The Ethicist", role: "Considers who's affected", prompt: "You are an ethics professor. Consider stakeholders, fairness, unintended consequences, and moral dimensions." },
+        { emoji: "🌍", name: "The Historian", role: "Pattern matches from history", prompt: "You are a historian. Find historical parallels. What happened when others faced similar choices?" },
+        { emoji: "🔧", name: "The Engineer", role: "Makes it work", prompt: "You are a pragmatic systems engineer. Focus on implementation, constraints, failure modes, and what actually works." },
+        { emoji: "📈", name: "The Optimizer", role: "Finds the 80/20", prompt: "You are a ruthless optimizer. Find the 80/20. What's the minimum effort for maximum result?" },
+        { emoji: "👶", name: "The Beginner", role: "Asks the obvious", prompt: "You have no expertise. Ask the 'stupid' questions that experts forget. Why? What does that mean? Says who?" },
+        { emoji: "🎭", name: "The Contrarian", role: "Takes the opposite view", prompt: "Whatever the consensus is, argue the opposite. Find the case for the unpopular position." },
+        { emoji: "🌿", name: "The Stoic", role: "Focuses on what you control", prompt: "You are Marcus Aurelius. Focus only on what's within control. Cut away anxiety about externals." },
+        { emoji: "💡", name: "The Inventor", role: "Builds new solutions", prompt: "You are a prolific inventor. Don't choose between existing options — invent a new one nobody considered." },
+        { emoji: "🎯", name: "The Coach", role: "Pushes for commitment", prompt: "You are a world-class executive coach. Push past analysis paralysis. What's the next concrete action?" }
+    ];
+
+    let responses = {};
+
+    async function conveneCouncil() {
+        const question = document.getElementById('questionInput').value.trim();
+        if (!question) { alert('Please enter a question.'); return; }
+        const apiKey = document.getElementById('apiKeyInput').value.trim();
+        if (!apiKey) { alert('Please enter your API key. Click the key icon above.'); document.getElementById('apiFields').classList.add('visible'); return; }
+
+        const btn = document.querySelector('.btn');
+        btn.disabled = true;
+        btn.textContent = 'Council is deliberating...';
+        document.getElementById('verdict').classList.remove('visible');
+        responses = {};
+
+        // Render council grid
+        const container = document.getElementById('councilContainer');
+        container.innerHTML = '<div class="council-grid">' + COUNCIL.map((m, i) => `
+            <div class="council-member" id="member-${i}">
+                <div class="member-header">
+                    <div class="member-avatar">${m.emoji}</div>
+                    <div>
+                        <div class="member-name">${m.name}</div>
+                        <div class="member-role">${m.role}</div>
+                    </div>
+                </div>
+                <div class="member-response loading" id="response-${i}">Thinking...</div>
+            </div>
+        `).join('') + '</div>';
+
+        // Call all 18 in batches of 3 to avoid rate limits
+        const provider = document.getElementById('providerSelect').value;
+        for (let batch = 0; batch < 6; batch++) {
+            const promises = [];
+            for (let j = 0; j < 3; j++) {
+                const i = batch * 3 + j;
+                if (i >= COUNCIL.length) break;
+                promises.push(getResponse(i, question, apiKey, provider));
+            }
+            await Promise.all(promises);
+        }
+
+        // Synthesize
+        await synthesize(question, apiKey, provider);
+        btn.disabled = false;
+        btn.textContent = '🏛️ Convene the Council';
+    }
+
+    async function getResponse(index, question, apiKey, provider) {
+        const member = COUNCIL[index];
+        const el = document.getElementById(`response-${index}`);
+        const card = document.getElementById(`member-${index}`);
+        try {
+            const systemPrompt = `${member.prompt}\n\nGive a concise, opinionated response (2-4 sentences max). Be direct and distinctive. Don't hedge.`;
+            const result = await callAPI(systemPrompt, question, apiKey, provider);
+            el.textContent = result;
+            el.classList.remove('loading');
+            card.classList.add('active');
+            responses[member.name] = result;
+        } catch (err) {
+            el.textContent = 'Error: ' + err.message;
+            el.classList.remove('loading');
+        }
+    }
+
+    async function synthesize(question, apiKey, provider) {
+        const summaries = Object.entries(responses).map(([name, resp]) => `${name}: ${resp}`).join('\n\n');
+        const systemPrompt = `You are the Council Moderator. You've heard 18 expert perspectives on a question. Synthesize them into a clear, actionable verdict. Note where experts agreed, where they disagreed, and what the questioner should actually DO. Be concise (3-5 sentences).`;
+        const userMsg = `Question: ${question}\n\nPerspectives:\n${summaries}\n\nSynthesize into a verdict.`;
+        try {
+            const verdict = await callAPI(systemPrompt, userMsg, apiKey, provider);
+            document.getElementById('verdictText').textContent = verdict;
+            document.getElementById('verdict').classList.add('visible');
+            document.getElementById('verdict').scrollIntoView({ behavior: 'smooth' });
+        } catch (err) {
+            document.getElementById('verdictText').textContent = 'Synthesis failed: ' + err.message;
+            document.getElementById('verdict').classList.add('visible');
+        }
+    }
+
+    async function callAPI(systemPrompt, userMessage, apiKey, provider) {
+        if (provider === 'anthropic') {
+            const resp = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+                body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 300, system: systemPrompt, messages: [{ role: 'user', content: userMessage }] })
+            });
+            if (!resp.ok) throw new Error('API ' + resp.status);
+            const data = await resp.json();
+            return data.content[0].text;
+        } else {
+            const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                body: JSON.stringify({ model: 'gpt-4o-mini', messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }], max_tokens: 300 })
+            });
+            if (!resp.ok) throw new Error('API ' + resp.status);
+            const data = await resp.json();
+            return data.choices[0].message.content;
+        }
+    }
+    </script>
+</body>
+</html>
